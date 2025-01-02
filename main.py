@@ -3,7 +3,7 @@ from openai import OpenAI
 from tenacity import retry, wait_random_exponential, stop_after_attempt
 from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Union
+from typing import Literal
 
 GPT_MODEL = "gpt-4o"
 
@@ -55,32 +55,26 @@ Create a system to analyze user exercise history, and generate a customized week
 
 # Steps
 
-1. **Analyze Exercise History**: The exercise history is in this format: 
+1. **Identify Goals**: Understand the user's goal for improvement in the specific activity (e.g., increase endurance, enhance strength, improve flexibility).
+2. **Create a Weekly Plan**: 
+- Formulate a personalized weekly exercise plan that aligns with the user's goals, ensuring it's balanced and progressive. 
+- Always use the get_workout_program function to generate the user's workout plan. 
+- Always name specific exercises the user must perform (e.g. "bicep curls" instead of "upper body strength")
 
-```JSON
+** Example input: **
+
+*Height will always be given in centimeters, and weight is always given in kilograms.*
+
 {
-    "athlete_type": <an enum of either "Runner", "Cyclist", "Swimmer", "Other">,
-    "data": [
-        {
-           "avg_split": <some value of type float>,
-           "avg_distance": <some value of type float>
-        }
-    ],
-    "description": <a description of the user of type string>
+    "sex": "Male",
+    "weight": 77.564232,
+    "height": 182.88,
+    "experienceLevelMap": {
+        "weight_training": "Intermediate",
+        "Cycling": "No Interest",
+        "Running": "Beginner"
+    }
 }
-```
-
-If the `athelete_type` is "Other", the description will **always** provide context about the user. Also, the exercise history will not be given.
-
-The `data` attribute will not be included in the exercise history object if the user is of type "Other".
-
-2. **Identify Goals**: Understand the user's goal for improvement in the specific activity (e.g., increase endurance, enhance strength, improve flexibility).
-3. **Create a Weekly Plan**: 
-Formulate a personalized weekly exercise plan that aligns with the user's goals, ensuring it's balanced and progressive. 
-Always use the get_workout_program function to generate the user's workout plan. 
-Always name specific exercises the user must perform (e.g. "bicep curls" instead of "upper body strength")
-
-**Example input: ** athlete_type='Other' description='Male. 170LBS. 6 feet tall. Wants to gain 15 LBS of muscle mass. Max bench press: 170LBS. Max dead lift: 100LBS.'
 
 ** Correct output: **
 
@@ -88,225 +82,185 @@ Always name specific exercises the user must perform (e.g. "bicep curls" instead
 {
   "activities": [
     {
-      "activityName": "Bench Press",
-      "description": "Upper Body Strength",
+      "activityName": "Barbell Bench Press",
+      "description": "A compound exercise to target the chest, shoulders, and triceps.",
       "day": "Monday",
       "sets": 4,
       "reps": 12
     },
     {
-      "activityName": "Arnolds Press",
-      "description": "Upper Body Strength",
-      "day": "Monday",
-      "sets": 3,
-      "reps": 12
-    },
-    {
-      "activityName": "Bent-over Rows",
-      "description": "Upper Body Strength",
+      "activityName": "Dumbbell Rows",
+      "description": "An exercise to strengthen the back and improve posture.",
       "day": "Monday",
       "sets": 4,
       "reps": 12
     },
     {
-      "activityName": "Tricep Pushdowns",
-      "description": "Upper Body Strength",
-      "day": "Monday",
-      "sets": 3,
-      "reps": 15
-    },
-    {
-      "activityName": "Dumbbell Bicep Curls",
-      "description": "Upper Body Strength",
-      "day": "Monday",
-      "sets": 3,
-      "reps": 12
-    },
-    {
-      "activityName": "Deadlift",
-      "description": "Lower Body Strength",
-      "day": "Tuesday",
-      "sets": 4,
-      "reps": 10
-    },
-    {
-      "activityName": "Squats",
-      "description": "Lower Body Strength",
-      "day": "Tuesday",
+      "activityName": "Bodyweight Squats",
+      "description": "A lower-body exercise for strengthening the legs and glutes.",
+      "day": "Wednesday",
       "sets": 4,
       "reps": 12
     },
     {
-      "activityName": "Leg Press",
-      "description": "Lower Body Strength",
-      "day": "Tuesday",
-      "sets": 3,
+      "activityName": "Dumbbell Shoulder Press",
+      "description": "An overhead pressing exercise to develop shoulder strength.",
+      "day": "Wednesday",
+      "sets": 4,
       "reps": 12
     },
     {
-      "activityName": "Calf Raises",
-      "description": "Lower Body Strength",
-      "day": "Tuesday",
-      "sets": 3,
-      "reps": 15
-    },
-    {
-      "activityName": "Incline Dumbbell Press",
-      "description": "Hypertrophy Focus",
-      "day": "Thursday",
-      "sets": 3,
-      "reps": 12
-    },
-    {
-      "activityName": "Lateral Raises",
-      "description": "Hypertrophy Focus",
-      "day": "Thursday",
-      "sets": 3,
-      "reps": 15
-    },
-    {
-      "activityName": "Seated Rows",
-      "description": "Hypertrophy Focus",
-      "day": "Thursday",
-      "sets": 3,
-      "reps": 12
-    },
-    {
-      "activityName": "Skull Crushers",
-      "description": "Hypertrophy Focus",
-      "day": "Thursday",
-      "sets": 3,
-      "reps": 15
-    },
-    {
-      "activityName": "Hammer Curls",
-      "description": "Hypertrophy Focus",
-      "day": "Thursday",
-      "sets": 3,
-      "reps": 12
-    },
-    {
-      "activityName": "Romanian Deadlifts",
-      "description": "Lower Body and Core",
+      "activityName": "Incline Dumbbell Bench Press",
+      "description": "Targets the upper chest and shoulders.",
       "day": "Friday",
-      "sets": 3,
+      "sets": 4,
       "reps": 12
     },
     {
-      "activityName": "Lunges",
-      "description": "Lower Body and Core",
+      "activityName": "Lat Pulldowns",
+      "description": "Strengthens the back and helps with pull-up progressions.",
       "day": "Friday",
-      "sets": 3,
+      "sets": 4,
+      "reps": 12
+    },
+    {
+      "activityName": "Light Jogging",
+      "description": "A beginner-friendly cardio activity to improve running endurance.",
+      "day": "Saturday",
+      "sets": 1,
+      "reps": 20
+    },
+    {
+      "activityName": "Push-Ups",
+      "description": "A bodyweight exercise to strengthen the chest, triceps, and core.",
+      "day": "Sunday",
+      "sets": 4,
       "reps": 12
     },
     {
       "activityName": "Plank",
-      "description": "Lower Body and Core",
+      "description": "A core stabilization exercise for improved overall strength.",
+      "day": "Sunday",
+      "sets": 4,
+      "reps": 30
+    }
+  ]
+}
+
+```
+
+**Example input: ** 
+
+*Height will always be given in centimeters, and weight is always given in kilograms.*
+
+{
+    "sex": "Female",
+    "weight": 63.50288,
+    "height": 172.72,
+    "experienceLevelMap": {
+        "weight_training": "Beginner",
+        "cycling": "No Interest",
+        "running": "Intermediate"
+    }
+}
+
+** Correct output: **
+
+```JSON
+{
+  "activities": [
+    {
+      "activityName": "Dumbbell Goblet Squats",
+      "description": "A beginner-friendly lower-body exercise to build leg strength and core stability.",
+      "day": "Monday",
+      "sets": 4,
+      "reps": 12
+    },
+    {
+      "activityName": "Dumbbell Bench Press",
+      "description": "A simple pressing exercise to strengthen the chest and triceps.",
+      "day": "Monday",
+      "sets": 4,
+      "reps": 12
+    },
+    {
+      "activityName": "Walking Lunges",
+      "description": "A functional exercise to improve lower-body strength and balance.",
+      "day": "Wednesday",
+      "sets": 4,
+      "reps": 12
+    },
+    {
+      "activityName": "Dumbbell Shoulder Press",
+      "description": "An overhead pressing movement to develop shoulder strength.",
+      "day": "Wednesday",
+      "sets": 4,
+      "reps": 12
+    },
+    {
+      "activityName": "Romanian Deadlifts",
+      "description": "A hinge movement to strengthen hamstrings and glutes.",
       "day": "Friday",
-      "sets": 3,
+      "sets": 4,
+      "reps": 12
+    },
+    {
+      "activityName": "Bent-Over Dumbbell Rows",
+      "description": "Targets the back muscles for improved posture and strength.",
+      "day": "Friday",
+      "sets": 4,
+      "reps": 12
+    },
+    {
+      "activityName": "Interval Running",
+      "description": "A high-intensity running session alternating between sprints of 200 meters and recovery jogs of 400 meters.",
+      "day": "Saturday",
+      "sets": 6,
       "reps": 1
     },
     {
-      "activityName": "Abdominal Crunches",
-      "description": "Lower Body and Core",
-      "day": "Friday",
-      "sets": 3,
-      "reps": 20
-    },
-    {
-      "activityName": "Kettlebell Exercises",
-      "description": "Functional and Flexibility",
-      "day": "Sunday",
-      "sets": 3,
-      "reps": 15
-    },
-    {
-      "activityName": "Stretching",
-      "description": "Functional and Flexibility",
+      "activityName": "Steady-State Run",
+      "description": "A continuous, moderate-paced run for 5 kilometers to build aerobic endurance.",
       "day": "Sunday",
       "sets": 1,
+      "reps": 1
+    },
+    {
+      "activityName": "Bodyweight Push-Ups",
+      "description": "A simple bodyweight exercise for upper-body strength.",
+      "day": "Sunday",
+      "sets": 4,
+      "reps": 12
+    },
+    {
+      "activityName": "Side Plank",
+      "description": "A core exercise to strengthen the obliques and improve stability.",
+      "day": "Sunday",
+      "sets": 4,
       "reps": 30
     }
   ]
 }
 ```
 
-**Example input: ** athlete_type='Runner' data=Data(avg_split=5.25, avg_distance=10.0) description='Female. 150LBS. 5ft, 6in.'
-
-** Correct output: **
-
-```JSON
-{
-    "activities": [
-        {
-            "activityName": "Distance Run",
-            "description": "A steady-paced run to build endurance.",
-            "day": "Monday",
-            "sets": 1,
-            "reps": 1
-        },
-        {
-            "activityName": "Interval Training",
-            "description": "Short bursts of high-intensity running with rest in between.",
-            "day": "Tuesday",
-            "sets": 6,
-            "reps": 400
-        },
-        {
-            "activityName": "Recovery Run",
-            "description": "Light run to aid recovery and build stamina.",
-            "day": "Wednesday",
-            "sets": 1,
-            "reps": 1
-        },
-        {
-            "activityName": "Tempo Run",
-            "description": "Run at a challenging but sustainable pace to enhance threshold.",
-            "day": "Thursday",
-            "sets": 1,
-            "reps": 1
-        },
-        {
-            "activityName": "Cross-Training",
-            "description": "Incorporate other activities like cycling or swimming.",
-            "day": "Friday",
-            "sets": 3,
-            "reps": 10
-        },
-        {
-            "activityName": "Long Run",
-            "description": "Run at a conversational pace to build endurance.",
-            "day": "Saturday",
-            "sets": 1,
-            "reps": 1
-        },
-        {
-            "activityName": "Rest Day",
-            "description": "Day off from running to recover.",
-            "day": "Sunday",
-            "sets": 0,
-            "reps": 0
-        }
-    ]
-}
-```
-
-4. **Incorporate User Input**: Adjust the weekly plan based on any new input or changes in user preferences, needs, or constraints.
+3. **Incorporate User Input**: Adjust the weekly plan based on any new input or changes in user preferences, needs, or constraints.
 """
 
 client = OpenAI()
 app = FastAPI()
 
 
-class Data(BaseModel):
-    avg_split: float
-    avg_distance: float
+class ExperienceLevelMap(BaseModel):
+    weight_training: str
+    cycling: str
+    running: str
 
 
 class ExerciseHistory(BaseModel):
-    athlete_type: str
-    data: Union[Data, None] = None
-    description: str
+    sex: Literal["Male", "Female"]
+    weight: float
+    height: float
+    experienceLevelMap: ExperienceLevelMap
 
 
 @retry(wait=wait_random_exponential(multiplier=1, max=40), stop=stop_after_attempt(3))
