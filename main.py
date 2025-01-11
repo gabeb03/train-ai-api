@@ -149,6 +149,18 @@ Create a system to analyze user exercise history, and generate a customized week
 
 ```
 
+For rest days, put the number of sets and reps as 1:
+
+```json
+{
+  "activityName": "Active Rest",
+  "description": "Active rest, or active recovery, should get your blood flowing without being too strenuous.",
+  "day": "Sunday",
+  "sets": 1,
+  "reps": 1
+}
+```
+
 **Example input: ** 
 
 *Height will always be given in centimeters, and weight is always given in kilograms.*
