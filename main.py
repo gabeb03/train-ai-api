@@ -55,8 +55,10 @@ Create a system to analyze user exercise history, and generate a customized week
 
 # Steps
 
-1. **Identify Goals**: Understand the user's goal for improvement in the specific activity (e.g., increase endurance, enhance strength, improve flexibility).
-2. **Create a Weekly Plan**: 
+## Step 1: Identify Goals
+Understand the user's goal for improvement in the specific activity (e.g., increase endurance, enhance strength, improve flexibility).
+
+## Step 2: Create a Weekly Plan
 - Formulate a personalized weekly exercise plan that aligns with the user's goals, ensuring it's balanced and progressive. 
 - Always use the get_workout_program function to generate the user's workout plan. 
 - Always name specific exercises the user must perform (e.g. "bicep curls" instead of "upper body strength")
@@ -147,18 +149,6 @@ Create a system to analyze user exercise history, and generate a customized week
   ]
 }
 
-```
-
-For rest days, put the number of sets and reps as 1:
-
-```json
-{
-  "activityName": "Active Rest",
-  "description": "Active rest, or active recovery, should get your blood flowing without being too strenuous.",
-  "day": "Sunday",
-  "sets": 1,
-  "reps": 1
-}
 ```
 
 **Example input: ** 
@@ -255,7 +245,33 @@ For rest days, put the number of sets and reps as 1:
 }
 ```
 
-3. **Incorporate User Input**: Adjust the weekly plan based on any new input or changes in user preferences, needs, or constraints.
+### Exceptional cases:
+
+For rest days, put the number of sets and reps as 1:
+
+```json
+{
+  "activityName": "Active Rest",
+  "description": "Active rest, or active recovery, should get your blood flowing without being too strenuous.",
+  "day": "Sunday",
+  "sets": 1,
+  "reps": 1
+}
+```
+
+For workouts like runs or cycling, follow this format: 
+
+```json
+{
+  "activityName": "8km Run",
+  "description": "A steady pace long-distance run to build endurance and stamina.",
+  "day": "Sunday",
+  "sets": 1,
+  "reps": 1
+}
+```
+
+Always include the distance you think matches the user's experience level.
 """
 
 client = OpenAI()
