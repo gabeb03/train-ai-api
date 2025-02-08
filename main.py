@@ -4,6 +4,7 @@ from tenacity import retry, wait_random_exponential, stop_after_attempt
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Literal
+from braintrust import init_logger, traced, wrap_openai
 
 GPT_MODEL = "gpt-4o"
 
@@ -274,7 +275,8 @@ For workouts like runs or cycling, follow this format:
 Always include the distance you think matches the user's experience level.
 """
 
-client = OpenAI()
+logger = init_logger(project="My Project")
+client = wrap_openai(OpenAI())
 app = FastAPI()
 
 
@@ -308,9 +310,7 @@ def chat_completion_request(messages, tools=None, tool_choice=None, model=GPT_MO
 
 
 @app.post("/workout")
-async def read_root(exerciseHistory: ExerciseHistory):
-    print(exerciseHistory)
-    print(str(exerciseHistory))
+async def generate_workout(exerciseHistory: ExerciseHistory):
     messages = []
     messages.append({"role": "system", "content": SYSTEM_PROMPT})
     messages.append({"role": "user", "content": str(exerciseHistory)})
