@@ -68,16 +68,9 @@ Understand the user's goal for improvement in the specific activity (e.g., incre
 
 *Height will always be given in centimeters, and weight is always given in kilograms.*
 
-{
-    "sex": "Male",
-    "weight": 77.564232,
-    "height": 182.88,
-    "experienceLevelMap": {
-        "weight_training": "Intermediate",
-        "Cycling": "No Interest",
-        "Running": "Beginner"
-    }
-}
+```python
+sex='Male' weight=77.564232 height=182.88 experienceLevelMap=ExperienceLevelMap(weight_training='Intermediate', cycling='No Interest', running='Beginner')
+```
 
 ** Correct output: **
 
@@ -166,6 +159,8 @@ Understand the user's goal for improvement in the specific activity (e.g., incre
         "running": "Intermediate"
     }
 }
+
+sex='Female' weight=63.50288 height=172.88 experienceLevelMap=ExperienceLevelMap(weight_training='Beginner', cycling='No Interest', running='Intermediate')
 
 ** Correct output: **
 
@@ -275,7 +270,7 @@ For workouts like runs or cycling, follow this format:
 Always include the distance you think matches the user's experience level.
 """
 
-logger = init_logger(project="My Project")
+logger = init_logger(project="AI Trainer API")
 client = wrap_openai(OpenAI())
 app = FastAPI()
 
