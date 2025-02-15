@@ -4,7 +4,7 @@ from tenacity import retry, wait_random_exponential, stop_after_attempt
 from fastapi import FastAPI
 from pydantic import BaseModel
 from typing import Literal
-from braintrust import init_logger, traced, wrap_openai
+from braintrust import init_logger, wrap_openai
 
 GPT_MODEL = "gpt-4o"
 
@@ -63,6 +63,7 @@ Understand the user's goal for improvement in the specific activity (e.g., incre
 - Formulate a personalized weekly exercise plan that aligns with the user's goals, ensuring it's balanced and progressive. 
 - Always use the get_workout_program function to generate the user's workout plan. 
 - Always name specific exercises the user must perform (e.g. "bicep curls" instead of "upper body strength")
+- If the user is interested in Weight Training, create a plan where each day hits a specific body part. E.g. arms, legs, back, etc.  
 
 ** Example input: **
 
